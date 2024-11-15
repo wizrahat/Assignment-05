@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
-import LogInPage from "./pages/LogInPage";
-import RegistrationPage from "./pages/RegistrationPage";
+import SignInPage from "./pages/SignInPage";
+import SignUpPage from "./pages/SignUpPage";
 import LeaderBoardPage from "./pages/LeaderBoardPage";
 import ResultPage from "./pages/ResultPage";
 import QuizPage from "./pages/QuizPage";
@@ -15,13 +15,15 @@ function App() {
         {" "}
         <Routes>
           <Route element={<PrivateRoute />}>
-            <Route path="/" element={<HomePage />} />
             <Route path="/:quizSet/leaderboard" element={<LeaderBoardPage />} />
             <Route path="/:quizSet/result" element={<ResultPage />} />
             <Route path="/:quizSet" element={<QuizPage />} />
           </Route>
-          <Route path="/login" element={<LogInPage />} />
-          <Route path="/register" element={<RegistrationPage />} />
+          <Route path="/" element={<HomePage />} />
+
+          <Route path="/signin" element={<SignInPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="*" element={<div>not found</div>} />
         </Routes>
       </AuthProvider>
     </>

@@ -1,6 +1,5 @@
 import useAuth from "../hooks/useAuth";
 import { Navigate, Outlet } from "react-router-dom";
-import Header from "../components/common/Header";
 
 export default function PrivateRoute() {
   const { auth } = useAuth();
@@ -8,15 +7,10 @@ export default function PrivateRoute() {
     <>
       {auth?.user ? (
         <>
-          <Header />
-          <main className=" mx-auto max-w-[1020px] py-8">
-            <div className="container">
-              <Outlet />
-            </div>
-          </main>
+          <Outlet />
         </>
       ) : (
-        <Navigate to="/login" />
+        <Navigate to="/signin" />
       )}
     </>
   );

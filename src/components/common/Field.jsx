@@ -4,9 +4,9 @@ const Field = ({ label, children, htmlFor, error }) => {
   const id = htmlFor || getChildId(children);
 
   return (
-    <div className="form-control">
+    <>
       {label && (
-        <label htmlFor={id} className="auth-label">
+        <label htmlFor={id} className="block mb-2">
           {label}
         </label>
       )}
@@ -16,7 +16,7 @@ const Field = ({ label, children, htmlFor, error }) => {
           {error.message}
         </div>
       )}
-    </div>
+    </>
   );
 };
 
