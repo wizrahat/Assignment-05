@@ -3,6 +3,8 @@ import Field from "../common/Field";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { api } from "../../api";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export default function SignInForm() {
   const navigate = useNavigate();
@@ -14,32 +16,49 @@ export default function SignInForm() {
     setError,
   } = useForm();
 
-  async function onSubmit(data) {
-    try {
+  const mutation = useMutation({
+    mutationFn: async (data) => {
       const res = await api.post(`/auth/api/login`, data);
-
       if (res.status === 200) {
-        const { token, user } = res.data;
-        if (token) {
-          const authToken = token.token;
-          const refreshToken = token.refreshToken;
-          setAuth({ user, authToken, refreshToken });
-          navigate("/");
-        }
+        return res.data;
+      } else {
+        throw new Error("Login failed");
       }
-    } catch (err) {
+    },
+    onSuccess: (data) => {
+      const { token, user } = data;
+      if (token) {
+        const authToken = token.token;
+        const refreshToken = token.refreshToken;
+        setAuth({ user, authToken, refreshToken });
+        navigate("/");
+      }
+    },
+    onError: () => {
       setError("root.random", {
         type: "random",
         message: "Username or password is incorrect",
       });
-    }
-  }
+    },
+  });
+
+  const onSubmit = async (data) => {
+    // Use toast.promise to handle the mutation with feedback using sonner
+    toast.promise(mutation.mutateAsync(data), {
+      loading: "Signing in...",
+      success: "Successfully logged in!",
+      error: "Couldn't find user",
+    });
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       {/* <!-- email --> */}
-      <Field label="Enter your username or email address" error={errors.email}>
-        <div className="mb-4 ">
+      <Field
+        label="Enter your username or email address"
+        error={errors.username}
+      >
+        <div className="mb-3 ">
           <input
             {...register("username", {
               required: " email or username is required",
@@ -48,14 +67,14 @@ export default function SignInForm() {
             id="username"
             name="username"
             className={`w-full px-4 py-3 rounded-lg border border-gray-300 ${
-              errors.email ? " border-red-500" : "border-gray-300"
+              errors.username ? " border-red-500" : "border-gray-300"
             } `}
             placeholder="Username or email address"
           />
         </div>
       </Field>
       <Field label="Enter your Password" error={errors.password}>
-        <div className="mb-6 ">
+        <div className="mb-3 ">
           {" "}
           <input
             {...register("password", {
@@ -77,7 +96,7 @@ export default function SignInForm() {
       </Field>
       <Field>
         {" "}
-        <div className="mb-6 flex gap-2 items-center">
+        <div className="mb-1 flex gap-2 items-center">
           <input
             type="checkbox"
             id="admin"
@@ -89,7 +108,8 @@ export default function SignInForm() {
         </div>
       </Field>
       {/* <!-- password --> */}
-      <div role="alert" className="text-red-500">
+      {/* // TODO FIX FONT WEIGHT */}
+      <div role="alert" className="text-red-600 mb-2 ">
         {errors?.root?.random?.message}
       </div>
       <Field>
@@ -104,14 +124,3 @@ export default function SignInForm() {
     </form>
   );
 }
-<form>
-  <div className="mb-6">
-    <label htmlFor="password" className="block mb-2"></label>
-    <input
-      type="password"
-      id="password"
-      className="w-full px-4 py-3 rounded-lg border border-gray-300"
-      placeholder="Password"
-    />
-  </div>
-</form>;

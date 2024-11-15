@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Illustration from ".././assets/Saly-1.png";
 import Logo from ".././assets/logo.svg";
 import SignInForm from "../components/auth/SignInForm";
@@ -42,9 +43,9 @@ export default function SignInPage() {
             <div className="mt-8">
               <p className="text-center">
                 No Account ?{" "}
-                <a href="#" className="text-primary">
+                <Link to="/signup" className="text-primary">
                   Sign up
-                </a>
+                </Link>
               </p>
             </div>
           </div>

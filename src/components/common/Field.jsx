@@ -6,13 +6,15 @@ const Field = ({ label, children, htmlFor, error }) => {
   return (
     <>
       {label && (
-        <label htmlFor={id} className="block mb-2">
+        <label htmlFor={id} className="block mb-2 ">
           {label}
         </label>
       )}
       {children}
+      {/* // TODO FIX FONT WEIGHT */}
+
       {!!error && (
-        <div role="alert" className="text-red-500">
+        <div role="alert" className="text-red-500 ">
           {error.message}
         </div>
       )}
