@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Illustration from ".././assets/Saly-1.png";
 import Logo from ".././assets/logo.svg";
 import SignUpForm from "../components/auth/SignUpForm";
@@ -34,7 +35,7 @@ export default function SignUpPage() {
           <div className="w-full max-w-lg ">
             <h2 className="text-3xl font-bold mb-3 flex gap-2 items-center">
               <span>Welcome to</span>
-              <img src="./assets/logo.svg" className="h-7" />
+              <img src={Logo} className="h-7" />
             </h2>
             <h1 className="text-4xl font-bold mb-6">Sign Up</h1>
 
@@ -43,9 +44,9 @@ export default function SignUpPage() {
             <div className="mt-2 text-gray-400">
               <p className="text-center">
                 Already have account ?{" "}
-                <a href="#" className="text-primary">
+                <Link to="/signin" className="text-primary">
                   Sign In
-                </a>
+                </Link>
               </p>
             </div>
           </div>

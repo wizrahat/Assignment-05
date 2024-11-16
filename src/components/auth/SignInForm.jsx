@@ -18,20 +18,20 @@ export default function SignInForm() {
 
   const mutation = useMutation({
     mutationFn: async (data) => {
-      const res = await api.post(`/auth/api/login`, data);
+      const res = await api.post(`/api/auth/login`, data);
       if (res.status === 200) {
         return res.data;
       } else {
-        throw new Error("Login failed");
+        throw new Error("Sign in failed");
       }
     },
     onSuccess: (data) => {
-      const { token, user } = data;
-      if (token) {
-        const authToken = token.token;
-        const refreshToken = token.refreshToken;
+      const { tokens, user } = data.data;
+      if (tokens) {
+        const authToken = tokens.token;
+        const refreshToken = tokens.refreshToken;
         setAuth({ user, authToken, refreshToken });
-        navigate("/");
+        navigate("/", { replace: true });
       }
     },
     onError: () => {
@@ -43,48 +43,39 @@ export default function SignInForm() {
   });
 
   const onSubmit = async (data) => {
-    // Use toast.promise to handle the mutation with feedback using sonner
-    toast.promise(mutation.mutateAsync(data), {
+    const user = { email: data.email, password: data.password };
+    toast.promise(mutation.mutateAsync(user), {
       loading: "Signing in...",
-      success: "Successfully logged in!",
+      success: "Successfully signed in!",
       error: "Couldn't find user",
     });
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      {/* <!-- email --> */}
-      <Field
-        label="Enter your username or email address"
-        error={errors.username}
-      >
+      <Field label="Enter your username or email address" error={errors.email}>
         <div className="mb-3 ">
           <input
-            {...register("username", {
-              required: " email or username is required",
+            {...register("email", {
+              required: "Email or username is required",
             })}
             type="text"
-            id="username"
-            name="username"
+            id="email"
+            name="email"
             className={`w-full px-4 py-3 rounded-lg border border-gray-300 ${
-              errors.username ? " border-red-500" : "border-gray-300"
+              errors.email ? " border-red-500" : "border-gray-300"
             } `}
             placeholder="Username or email address"
           />
         </div>
       </Field>
       <Field label="Enter your Password" error={errors.password}>
-        <div className="mb-3 ">
-          {" "}
+        <div className="mb-6 ">
           <input
             {...register("password", {
-              required: " password is required",
-              minLength: {
-                value: 8,
-                message: "password must be atleast 8 characters",
-              },
+              required: "Password is required",
             })}
-            className={` w-full px-4 py-3 rounded-lg border border-gray-300 ${
+            className={`w-full px-4 py-3 rounded-lg border border-gray-300 ${
               errors.password ? " border-red-500" : "border-gray-300"
             }`}
             name="password"
@@ -94,26 +85,25 @@ export default function SignInForm() {
           />
         </div>
       </Field>
-      <Field>
-        {" "}
+      {/* //*removed redundent checkbox */}
+      {/* <Field>
         <div className="mb-1 flex gap-2 items-center">
           <input
+            {...register("admin")}
             type="checkbox"
             id="admin"
+            name="admin"
             className="px-4 py-3 rounded-lg border border-gray-300"
           />
           <label htmlFor="admin" className="block ">
             Login as Admin
           </label>
         </div>
-      </Field>
-      {/* <!-- password --> */}
-      {/* // TODO FIX FONT WEIGHT */}
+      </Field> */}
       <div role="alert" className="text-red-600 mb-2 ">
         {errors?.root?.random?.message}
       </div>
       <Field>
-        {" "}
         <button
           type="submit"
           className="w-full bg-primary text-white py-3 rounded-lg mb-4"

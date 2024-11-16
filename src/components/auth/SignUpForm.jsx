@@ -5,6 +5,7 @@ import useAuth from "../../hooks/useAuth";
 import { api } from "../../api";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
+
 export default function SignUpForm() {
   const navigate = useNavigate();
   const { setAuth } = useAuth();
@@ -13,61 +14,80 @@ export default function SignUpForm() {
     handleSubmit,
     formState: { errors },
     setError,
+    watch,
   } = useForm();
+
+  const password = watch("password");
 
   const mutation = useMutation({
     mutationFn: async (data) => {
-      const res = await api.post(`/auth/api/login`, data);
-      if (res.status === 200) {
-        return res.data;
+      const res = await api.post(`/api/auth/register`, data);
+      console.log(res.data);
+      return res.data;
+    },
+    onSuccess: () => {
+      navigate("/login");
+    },
+    onError: (error) => {
+      if (error.response?.data?.message === "Email already registered") {
+        setError("email", {
+          type: "manual",
+          message:
+            "This email is already registered. Please use a different one.",
+        });
       } else {
-        throw new Error("Login failed");
+        setError("root.random", {
+          type: "random",
+          message: "An unexpected error occurred. Please try again later.",
+        });
       }
-    },
-    onSuccess: (data) => {
-      const { token, user } = data;
-      if (token) {
-        const authToken = token.token;
-        const refreshToken = token.refreshToken;
-        setAuth({ user, authToken, refreshToken });
-        navigate("/");
-      }
-    },
-    onError: () => {
-      setError("root.random", {
-        type: "random",
-        message: "Username or password is incorrect",
-      });
     },
   });
 
   const onSubmit = async (data) => {
-    // Use toast.promise to handle the mutation with feedback using sonner
-    toast.promise(mutation.mutateAsync(data), {
-      loading: "Signing in...",
-      success: "Successfully logged in!",
-      error: "Couldn't find user",
-    });
+    const user = {
+      full_name: data.full_name,
+      email: data.email,
+      password: data.password,
+      role: data.admin ? "admin" : "user",
+    };
+
+    try {
+      // Perform the signup and handle the success or error directly in toast
+      toast.promise(mutation.mutateAsync(user), {
+        loading: "Signing up...",
+        success: "Successfully signed up!",
+        error: (err) => {
+          console.log(err);
+          if (err.response?.data?.message === "Email already registered") {
+            return "This email is already registered. Please try another one.";
+          }
+          return "Couldn't sign up. Please try again later.";
+        },
+      });
+    } catch (error) {
+      console.log("Signup error:", error); // For debugging
+    }
   };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="">
-        <Field label={"Full name"}>
-          <div className="mb-4">
+        <Field label={"Full name"} error={errors.full_name}>
+          <div className="mb-2">
             <input
-              {...register("name", {
+              {...register("full_name", {
                 required: " name is required",
               })}
               type="text"
-              id="name"
-              name="name"
+              id="full_name"
+              name="full_name"
               className="w-full px-4 py-3 rounded-lg border border-gray-300"
               placeholder="John Doe"
             />
           </div>
         </Field>
-        <Field label={"Email"}>
-          {" "}
+        <Field label={"Email"} error={errors.email}>
           <div className="mb-4">
             <input
               {...register("email", {
@@ -82,50 +102,61 @@ export default function SignUpForm() {
           </div>
         </Field>
       </div>
-      {/* // TODO add confirm password feature */}
-      <div className="flex  gap-4">
-        <div className="mb-6">
-          <label htmlFor="password" className="block mb-2">
-            Enter your Password
-          </label>
+
+      <div className="flex gap-4">
+        <Field label={"Enter your Password"} error={errors.password}>
+          <div className="mb-6">
+            <input
+              {...register("password", {
+                required: " password is required",
+                minLength: {
+                  value: 8,
+                  message: "password must be atleast 8 characters",
+                },
+              })}
+              type="password"
+              id="password"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300"
+              placeholder="Password"
+            />
+          </div>
+        </Field>
+        <Field label={"Confirm Password"} error={errors.confirmPassword}>
+          <div className="mb-6">
+            <input
+              {...register("confirmPassword", {
+                required: " password is required",
+                validate: (value) =>
+                  value === password || "Password does not match",
+              })}
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300"
+              placeholder="Confirm Password"
+            />
+          </div>
+        </Field>
+      </div>
+      <Field label={"Register as Admin"}>
+        <div className="mb-6 flex gap-2 items-center">
           <input
-            type="password"
-            id="password"
-            className="w-full px-4 py-3 rounded-lg border border-gray-300"
-            placeholder="Password"
+            {...register("admin")}
+            type="checkbox"
+            id="admin"
+            name="admin"
+            className="px-4 py-3 rounded-lg border border-gray-300"
           />
         </div>
-
-        <div className="mb-6">
-          <label htmlFor="password" className="block mb-2">
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            className="w-full px-4 py-3 rounded-lg border border-gray-300"
-            placeholder="Confirm Password"
-          />
-        </div>
-      </div>
-
-      <div className="mb-6 flex gap-2 items-center">
-        <input
-          type="checkbox"
-          id="admin"
-          className="px-4 py-3 rounded-lg border border-gray-300"
-        />
-        <label htmlFor="admin" className="block ">
-          Register as Admin
-        </label>
-      </div>
-
-      <button
-        type="submit"
-        className="w-full bg-primary text-white py-3 rounded-lg mb-2"
-      >
-        Create Account
-      </button>
+      </Field>
+      <Field>
+        <button
+          type="submit"
+          className="w-full bg-primary text-white py-3 rounded-lg mb-2"
+        >
+          Create Account
+        </button>
+      </Field>
     </form>
   );
 }

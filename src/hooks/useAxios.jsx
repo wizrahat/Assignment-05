@@ -27,35 +27,41 @@ const useAxios = () => {
 
         // If the error status is 401 and there is no originalRequest._retry flag,
         // it means the token has expired and we need to refresh it
-        if (error.response.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
 
           try {
             const refreshToken = auth?.refreshToken;
-            const response = await axios.post(`/auth/api/refresh-token`, {
+
+            // Ensure you use the same base URL as your `api` instance
+            const response = await api.post(`/api/auth/refresh-token`, {
               refreshToken,
             });
-            const { token } = response.data;
 
-            console.log(`New Token: ${token}`);
-            setAuth({ ...auth, authToken: token });
+            const newToken = response.data?.token;
+            if (newToken) {
+              console.log(`New Token: ${newToken}`);
+              setAuth({ ...auth, authToken: newToken });
 
-            // Retry the original request with the new token
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return axios(originalRequest);
-          } catch (error) {
-            throw error;
+              // Retry the original request with the new token
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+              return axios(originalRequest);
+            }
+          } catch (refreshError) {
+            console.error("Token refresh failed:", refreshError);
+            throw refreshError;
           }
         }
 
         return Promise.reject(error);
       }
     );
+
     return () => {
       api.interceptors.request.eject(requestIntercept);
       api.interceptors.response.eject(responseIntercept);
     };
-  }, [auth.authToken]);
+  }, [auth]); // Watch the whole auth object for changes
 
   return { api };
 };
