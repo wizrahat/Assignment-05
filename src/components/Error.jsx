@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom";
 import { House } from "lucide-react";
-export default function ErrorPage() {
+import { Link } from "react-router-dom";
+
+export default function Error() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-lg w-full space-y-8 text-center">

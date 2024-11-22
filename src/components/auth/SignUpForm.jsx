@@ -1,14 +1,13 @@
 import { useForm } from "react-hook-form";
 import Field from "../common/Field";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../../hooks/useAuth";
-import { api } from "../../api";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import api from "../../api";
+
 export default function SignUpForm() {
   const navigate = useNavigate();
-  const { setAuth } = useAuth();
   const {
     register,
     handleSubmit,
@@ -18,15 +17,14 @@ export default function SignUpForm() {
   } = useForm();
 
   const password = watch("password");
-
   const mutation = useMutation({
     mutationFn: async (data) => {
+      // Ensure the API receives the correct payload
       const res = await api.post(`/api/auth/register`, data);
-      console.log(res.data);
       return res.data;
     },
     onSuccess: () => {
-      navigate("/login");
+      navigate("/signin");
     },
     onError: (error) => {
       if (error.response?.data?.message === "Email already registered") {
@@ -49,8 +47,11 @@ export default function SignUpForm() {
       full_name: data.full_name,
       email: data.email,
       password: data.password,
-      role: data.admin ? "admin" : "user",
+      role: data.admin ? "admin" : "user", // Only add 'role' if required
     };
+    if (!data.admin) {
+      delete user.role; // Remove role if not needed
+    }
 
     try {
       // Perform the signup and handle the success or error directly in toast
@@ -58,9 +59,11 @@ export default function SignUpForm() {
         loading: "Signing up...",
         success: "Successfully signed up!",
         error: (err) => {
-          console.log(err);
           if (err.response?.data?.message === "Email already registered") {
             return "This email is already registered. Please try another one.";
+          }
+          if (err.response?.data?.message === "Validation failed") {
+            return "Please enter a valid email address with a proper TLD (e.g., .com, .io, .au)";
           }
           return "Couldn't sign up. Please try again later.";
         },
@@ -91,7 +94,13 @@ export default function SignUpForm() {
           <div className="mb-4">
             <input
               {...register("email", {
-                required: " email is required",
+                required: "Email is required",
+                pattern: {
+                  // This pattern checks for valid email format with a proper TLD
+                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                  message:
+                    "Please enter a valid email address with a proper TLD (e.g., .com, .io, .au)",
+                },
               })}
               type="email"
               id="email"

@@ -2,12 +2,16 @@ import { useForm } from "react-hook-form";
 import Field from "../common/Field";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
-import { api } from "../../api";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import api from "../../api";
+
 export default function SignInForm() {
   const navigate = useNavigate();
+  //TODO: add redirection to previous page
+  // const location = useLocation();
+  // const previousPath = location.state?.from?.pathname || "/";
   const { setAuth } = useAuth();
   const {
     register,
@@ -28,10 +32,14 @@ export default function SignInForm() {
     onSuccess: (data) => {
       const { tokens, user } = data.data;
       if (tokens) {
-        const authToken = tokens.token;
+        const accessToken = tokens.accessToken;
         const refreshToken = tokens.refreshToken;
-        setAuth({ user, authToken, refreshToken });
-        navigate("/", { replace: true });
+        setAuth({ user, accessToken, refreshToken });
+        if (user.role === "admin") {
+          navigate("/dashboard");
+        } else {
+          navigate("/");
+        }
       }
     },
     onError: () => {

@@ -1,4 +1,3 @@
-import React from "react";
 import { Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
@@ -15,6 +14,8 @@ import AdminRoute from "./routes/AdminRoute";
 import DashBoardPage from "./pages/admin/DashBoardPage";
 import QuizSetPage from "./pages/admin/QuizSetPage";
 import QuizSetEntryPage from "./pages/admin/QuizSetEntryPage";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import NewQuizProvider from "./providers/NewQuizProvider";
 
 // Create a QueryClient instance
 const queryClient = new QueryClient();
@@ -23,33 +24,47 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        {/* Sonner Toaster for notifications */}
-        <Toaster
-          position="bottom-right"
-          richColors
-          duration={4000}
-          closeButton
-          theme="dark"
-        />
-        <Routes>
-          <Route element={<PrivateRoute />}>
-            <Route path="/:quizSet/leaderboard" element={<LeaderBoardPage />} />
-            <Route path="/:quizSet/result" element={<ResultPage />} />
-            <Route path="/:quizSet" element={<QuizPage />} />
-            <Route element={<AdminRoute />}>
-              <Route path="/dashboard" element={<DashBoardPage />} />
-              <Route path="/dashboard1" element={<QuizSetPage />} />
-              <Route path="/dashboard2" element={<QuizSetEntryPage />} />
+        <NewQuizProvider>
+          {/* Sonner Toaster for notifications */}
+          <Toaster
+            position="bottom-right"
+            richColors
+            duration={4000}
+            closeButton
+            theme="dark"
+          />
+          <ReactQueryDevtools initialIsOpen={false} />
+          <Routes>
+            <Route element={<PrivateRoute />}>
+              <Route
+                path="/quiz/:quizSet/leaderboard"
+                element={<LeaderBoardPage />}
+              />
+              <Route path="/quiz/:quizSet/result" element={<ResultPage />} />
+              <Route path="/quiz/:quizSet" element={<QuizPage />} />
+              <Route element={<AdminRoute />}>
+                <Route path="/dashboard" element={<DashBoardPage />} />
+                <Route path="/dashboard/new" element={<QuizSetPage />} />
+                <Route
+                  path="/dashboard/new/:newQuizSet"
+                  element={<QuizSetEntryPage />}
+                />
+              </Route>
             </Route>
-          </Route>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/signin" element={<SignInPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route path="*" element={<ErrorPage />} />
-        </Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/signin" element={<SignInPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="*" element={<ErrorPage />} />
+          </Routes>
+        </NewQuizProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
 }
 
 export default App;
+//TODO: add redirection to previous page
+//TODO: fix font weight problems
+//TODO: fix style="font-family: Jaro" problems
+//TODO: add full page loading and error handling and display on all pages
+//TODO: fix quiz card css
