@@ -1,9 +1,9 @@
 import { House } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export default function Error() {
+export default function ErrorComponent() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-lg w-full space-y-8 text-center">
         <div className="relative w-full h-64">
           <h1 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-9xl font-extrabold text-[#8B5CF6] tracking-widest font-sans">
@@ -12,10 +12,10 @@ export default function Error() {
         </div>
         <div className="relative">
           <p className="text-3xl font-semibold text-gray-800 mb-2">
-            Oops! Page not found
+            Oops! Unexpected error
           </p>
           <p className="text-gray-600 text-lg mb-8">
-            The page you're looking for doesn't exist or has been moved.
+            unexpected error occured. please try again later
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

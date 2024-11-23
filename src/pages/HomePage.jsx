@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Avatar from ".././assets/avater.webp";
 import { useQuery } from "@tanstack/react-query";
 import api from "../api";
-import Error from "../components/Error";
+import ErrorComponent from "../components/ErrorComponent";
 
 export default function HomePage() {
   const { auth, setAuth } = useAuth();
@@ -27,7 +27,7 @@ export default function HomePage() {
     return res?.data?.data;
   }
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <Error />;
+  if (error) return <ErrorComponent />;
   return (
     <div className="bg-[#F5F3FF] min-h-screen">
       <div className="container mx-auto py-3">
@@ -57,12 +57,20 @@ export default function HomePage() {
                 Sign out
               </Link>
             ) : (
-              <Link
-                to="/signin"
-                className="px-4 py-2 rounded hover:bg-primary hover:text-white transition-colors"
-              >
-                Sign in
-              </Link>
+              <>
+                <Link
+                  to="/signin"
+                  className="px-4 py-2 rounded hover:bg-primary hover:text-white transition-colors"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  to="/signup"
+                  className="px-4 py-2 rounded hover:bg-primary hover:text-white transition-colors"
+                >
+                  Sign up
+                </Link>
+              </>
             )}
           </div>
         </header>

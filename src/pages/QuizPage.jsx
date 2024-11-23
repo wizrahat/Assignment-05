@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import Logo from "../assets/logo.svg";
 import Avatar from "../assets/avater.webp";
@@ -11,20 +11,20 @@ import QuizSubmitModal from "../components/quiz/QuizSubmitModal";
 import { useForm } from "react-hook-form";
 import api from "../api";
 import useQuiz from "../hooks/useQuiz";
-import Error from "../components/Error";
+import ErrorComponent from "../components/ErrorComponent";
 export default function QuizPage() {
   const { auth, setAuth } = useAuth();
-  const { quizSet } = useParams();
+  const { quizSetId } = useParams();
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const { register } = useForm();
-  const { quizData, isLoading, quizError } = useQuiz({ quizSet });
+  const { quizData, isLoading, quizError } = useQuiz({ quizSetId });
 
   const mutation = useMutation({
     mutationFn: submitAnswers,
     onSuccess: () => {
-      navigate(`/quiz/${quizSet}/result`);
+      navigate(`/quiz/${quizSetId}/result`);
     },
     onError: (err) => {
       setError(err);
@@ -33,7 +33,7 @@ export default function QuizPage() {
 
   async function submitAnswers(data) {
     try {
-      const res = await api.post(`/api/quizzes/${quizSet}/attempt`, data, {
+      const res = await api.post(`/api/quizzes/${quizSetId}/attempt`, data, {
         headers: {
           Authorization: `Bearer ${auth?.accessToken}`,
           "Content-Type": "application/json",
@@ -63,7 +63,7 @@ export default function QuizPage() {
           }));
 
           const retryResponse = await api.post(
-            `/api/quizzes/${quizSet}/attempt`,
+            `/api/quizzes/${quizSetId}/attempt`,
             data,
             {
               headers: {
@@ -126,8 +126,9 @@ export default function QuizPage() {
       error: "Couldn't submit answers",
     });
   };
+  if (quizData.user_attempt.attempted) return <Navigate to="/quiz/result" />;
   if (isLoading) return <div>Loading...</div>;
-  if (error || quizError) return <Error />;
+  if (error || quizError) return <ErrorComponent />;
 
   return (
     <>

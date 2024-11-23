@@ -4,21 +4,22 @@ import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import api from "../api";
 import Avatar from ".././assets/avater.webp";
+import ErrorComponent from "../components/ErrorComponent";
 export default function LeaderBoardPage() {
   const { auth, setAuth } = useAuth();
-  const { quizSet } = useParams();
+  const { quizSetId } = useParams();
   const {
     data: quizAttempts,
     isLoading,
-    isError,
+    error,
   } = useQuery({
-    queryKey: ["quizAttempts", quizSet],
+    queryKey: ["quizAttempts", quizSetId],
     queryFn: fetchQuizAttempts,
   });
 
   async function fetchQuizAttempts() {
     try {
-      const res = await api.get(`/api/quizzes/${quizSet}/attempts`, {
+      const res = await api.get(`/api/quizzes/${quizSetId}/attempts`, {
         headers: {
           Authorization: `Bearer ${auth?.accessToken}`,
         },
@@ -45,7 +46,7 @@ export default function LeaderBoardPage() {
           }));
 
           const retryResponse = await api.get(
-            `/api/quizzes/${quizSet}/attempts`,
+            `/api/quizzes/${quizSetId}/attempts`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -65,7 +66,7 @@ export default function LeaderBoardPage() {
   }
 
   if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error loading quiz data</div>;
+  if (error) return <ErrorComponent />;
 
   // Find current user's attempt
   const currentUserAttempt = quizAttempts?.attempts.find(
@@ -81,12 +82,24 @@ export default function LeaderBoardPage() {
       return score + (submitted?.answer === correctAnswer.answer ? 1 : 0);
     }, 0);
   };
-
+  const calculateMarks = (attempt) => {
+    return attempt.correct_answers.reduce((score, correctAnswer) => {
+      const submitted = attempt.submitted_answers.find(
+        (ans) => ans.question_id === correctAnswer.question_id
+      );
+      return (
+        score +
+        (submitted?.answer === correctAnswer.answer
+          ? quizAttempts.total_marks / quizAttempts.total_questions
+          : 0)
+      );
+    }, 0);
+  };
   // Sort attempts by score to display leaderboard
   const sortedAttempts = quizAttempts?.attempts
     .map((attempt) => ({
       ...attempt,
-      correctCount: calculateCorrectAnswers(attempt),
+      correctCount: calculateMarks(attempt),
     }))
     .sort((a, b) => b.correctCount - a.correctCount);
   const topFiveAttempts = sortedAttempts.slice(0, 5);
@@ -141,9 +154,9 @@ export default function LeaderBoardPage() {
               </div>
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="text-center">
-                  <p className="text-sm opacity-75">Total Marks</p>
+                  <p className="text-sm opacity-75">Marks</p>
                   <p className="text-2xl font-bold">
-                    {quizAttempts.quiz.total_marks}
+                    {calculateMarks(currentUserAttempt)}
                   </p>
                 </div>
                 <div className="text-center">
@@ -198,9 +211,7 @@ export default function LeaderBoardPage() {
                       </div>
                     </div>
                     <div className="flex items-center">
-                      <span className="mr-2">
-                        {calculateCorrectAnswers(attempt)}
-                      </span>
+                      <span className="mr-2">{calculateMarks(attempt)}</span>
                     </div>
                   </li>
                 ))}

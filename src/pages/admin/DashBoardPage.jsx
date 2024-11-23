@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
-import Error from "../../components/Error";
 import { useQuery } from "@tanstack/react-query";
 import api from "../../api";
 import PlusIcon from "../../components/icons/PlusIcon";
 import QuizSetIcon from "../../components/icons/QuizSetIcon";
+import ErrorComponent from "../../components/ErrorComponent";
 export default function DashBoardPage() {
   const { auth, setAuth } = useAuth();
   const {
@@ -61,7 +61,7 @@ export default function DashBoardPage() {
     }
   }
   if (isLoading) return <div>Loading...</div>;
-  if (quizError || adminQuizData === undefined) return <Error />;
+  if (quizError || adminQuizData === undefined) return <ErrorComponent />;
   return (
     <main className="flex-grow p-10">
       <header className="mb-8">
@@ -85,7 +85,8 @@ export default function DashBoardPage() {
         </Link>
 
         {adminQuizData?.map((quiz) => (
-          <div
+          <Link
+            to={`/dashboard/edit/${quiz.id}?title=${quiz.title}&description=${quiz.description}&status=${quiz.status}`}
             key={quiz.id}
             className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 group cursor-pointer"
           >
@@ -98,7 +99,7 @@ export default function DashBoardPage() {
             <p className="text-gray-600 text-sm group-hover:scale-105 transition-all">
               {quiz.description}
             </p>
-          </div>
+          </Link>
         ))}
       </div>
       {adminQuizData?.length === 0 && (

@@ -12,10 +12,12 @@ import AuthProvider from "./providers/AuthProvider";
 import ErrorPage from "./pages/ErrorPage";
 import AdminRoute from "./routes/AdminRoute";
 import DashBoardPage from "./pages/admin/DashBoardPage";
-import QuizSetPage from "./pages/admin/QuizSetPage";
-import QuizSetEntryPage from "./pages/admin/QuizSetEntryPage";
+import NewQuizSetPage from "./pages/admin/NewQuizSetPage";
+import NewQuizSetEntryPage from "./pages/admin/NewQuizSetEntryPage";
+
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import NewQuizProvider from "./providers/NewQuizProvider";
+import EditQuizSetPage from "./pages/admin/EditQuizSetPage";
 
 // Create a QueryClient instance
 const queryClient = new QueryClient();
@@ -37,17 +39,21 @@ function App() {
           <Routes>
             <Route element={<PrivateRoute />}>
               <Route
-                path="/quiz/:quizSet/leaderboard"
+                path="/quiz/:quizSetId/leaderboard"
                 element={<LeaderBoardPage />}
               />
-              <Route path="/quiz/:quizSet/result" element={<ResultPage />} />
-              <Route path="/quiz/:quizSet" element={<QuizPage />} />
+              <Route path="/quiz/:quizSetId/result" element={<ResultPage />} />
+              <Route path="/quiz/:quizSetId" element={<QuizPage />} />
               <Route element={<AdminRoute />}>
                 <Route path="/dashboard" element={<DashBoardPage />} />
-                <Route path="/dashboard/new" element={<QuizSetPage />} />
+                <Route path="/dashboard/new" element={<NewQuizSetPage />} />
                 <Route
-                  path="/dashboard/new/:newQuizSet"
-                  element={<QuizSetEntryPage />}
+                  path="/dashboard/new/:newQuizSetId"
+                  element={<NewQuizSetEntryPage />}
+                />
+                <Route
+                  path="/dashboard/edit/:quizSetId"
+                  element={<EditQuizSetPage />}
                 />
               </Route>
             </Route>
@@ -63,8 +69,7 @@ function App() {
 }
 
 export default App;
-//TODO: add redirection to previous page
-//TODO: fix font weight problems
+
 //TODO: fix style="font-family: Jaro" problems
+//TODO: add leader boeard marks
 //TODO: add full page loading and error handling and display on all pages
-//TODO: fix quiz card css

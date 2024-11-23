@@ -6,9 +6,8 @@ import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { toast } from "sonner";
 import useNewQuiz from "../../hooks/useNewQuiz";
-import Error from "../../components/Error";
 
-export default function QuizSetPage() {
+export default function NewQuizSetPage() {
   const navigate = useNavigate();
   const { auth, setAuth } = useAuth();
   const { setNewQuiz } = useNewQuiz();
@@ -25,12 +24,7 @@ export default function QuizSetPage() {
           Authorization: `Bearer ${auth?.accessToken}`,
         },
       });
-
-      if (res.status === 200) {
-        return res.data.data;
-      } else {
-        throw new Error("Creating new quiz set failed");
-      }
+      return res?.data?.data;
     } catch (err) {
       if (err.response?.status === 401) {
         try {
@@ -78,10 +72,7 @@ export default function QuizSetPage() {
       navigate(`/dashboard/new/${data.data.data.id}`);
     },
     onError: () => {
-      setError("root.random", {
-        type: "random",
-        message: "Couldn't create new quiz",
-      });
+      setError("Could not create new quiz set");
     },
   });
 
@@ -97,9 +88,7 @@ export default function QuizSetPage() {
       error: "Couldn't create new quiz",
     });
   };
-  if (error) {
-    return <Error />;
-  }
+
   return (
     <main className="md:flex-grow px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

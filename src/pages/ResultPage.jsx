@@ -6,27 +6,27 @@ import useAuth from "../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import api from "../api";
 import LogoWhite from "../assets/logo-white.svg";
-import Error from "../components/Error";
+import ErrorComponent from "../components/ErrorComponent";
 export default function ResultPage() {
-  const { quizSet } = useParams();
+  const { quizSetId } = useParams();
   const { auth, setAuth } = useAuth();
   const {
     quizData,
     isLoading: quizIsLoading,
     quizError,
-  } = useQuiz({ quizSet });
+  } = useQuiz({ quizSetId });
   const {
     data: quizResults,
     isLoading,
-    resultError,
+    error,
   } = useQuery({
-    queryKey: ["quizResults", quizSet],
+    queryKey: ["quizResults", quizSetId],
     queryFn: fetchQuizResults,
   });
 
   async function fetchQuizResults() {
     try {
-      const res = await api.get(`/api/quizzes/${quizSet}/attempts`, {
+      const res = await api.get(`/api/quizzes/${quizSetId}/attempts`, {
         headers: {
           Authorization: `Bearer ${auth?.accessToken}`,
         },
@@ -53,7 +53,7 @@ export default function ResultPage() {
           }));
 
           const retryResponse = await api.get(
-            `/api/quizzes/${quizSet}/attempts`,
+            `/api/quizzes/${quizSetId}/attempts`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -78,7 +78,7 @@ export default function ResultPage() {
   );
 
   if (isLoading) return <div>Loading...</div>;
-  if (quizError) return <Error />;
+  if (error || quizError) return <ErrorComponent />;
 
   // Initialize counters for correct and wrong answers
   let correctCount = 0;
@@ -104,7 +104,7 @@ export default function ResultPage() {
   const percentageCorrect = (correctCount / quizData.questions.length) * 100;
 
   if (isLoading || quizIsLoading) return <div>Loading...</div>;
-  if (resultError || quizError) return <Error />;
+  if (error || quizError) return <ErrorComponent />;
   return (
     <div className="bg-background text-foreground min-h-screen">
       <div className="flex min-h-screen overflow-hidden">
@@ -148,7 +148,7 @@ export default function ResultPage() {
                   </div>
 
                   <Link
-                    to={`/quiz/${quizSet}/leaderboard`}
+                    to={`/quiz/${quizSetId}/leaderboard`}
                     className="bg-secondary py-3 rounded-md hover:bg-secondary/90 transition-colors text-lg font-medium underline text-white"
                   >
                     View Leaderboard
@@ -169,8 +169,8 @@ export default function ResultPage() {
                       styles={{
                         root: { width: 100 },
                         path: {
-                          stroke: "blue",
-                          strokeLinecap: "butt",
+                          stroke: "aqua",
+                          strokeLinecap: "round",
                           strokeWidth: "5px",
                         },
                         text: {
@@ -178,7 +178,7 @@ export default function ResultPage() {
                           fontSize: "25px",
                         },
                         trail: {
-                          strokeWidth: "5px",
+                          strokeWidth: "6px",
                         },
                       }}
                     />
