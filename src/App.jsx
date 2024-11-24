@@ -14,8 +14,6 @@ import AdminRoute from "./routes/AdminRoute";
 import DashBoardPage from "./pages/admin/DashBoardPage";
 import NewQuizSetPage from "./pages/admin/NewQuizSetPage";
 import NewQuizSetEntryPage from "./pages/admin/NewQuizSetEntryPage";
-
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import NewQuizProvider from "./providers/NewQuizProvider";
 import EditQuizSetPage from "./pages/admin/EditQuizSetPage";
 
@@ -35,7 +33,6 @@ function App() {
             closeButton
             theme="dark"
           />
-          <ReactQueryDevtools initialIsOpen={false} />
           <Routes>
             <Route element={<PrivateRoute />}>
               <Route
