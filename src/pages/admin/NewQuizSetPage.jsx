@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { toast } from "sonner";
 import useNewQuiz from "../../hooks/useNewQuiz";
+import ArrowLeftIcon from "../../components/icons/ArrowLeftIcon";
 
 export default function NewQuizSetPage() {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ export default function NewQuizSetPage() {
           Authorization: `Bearer ${auth?.accessToken}`,
         },
       });
+
       return res?.data?.data;
     } catch (err) {
       if (err.response?.status === 401) {
@@ -68,11 +70,12 @@ export default function NewQuizSetPage() {
   const mutation = useMutation({
     mutationFn: createNewQuizSet,
     onSuccess: (data) => {
-      setNewQuiz(data.data.data);
-      navigate(`/dashboard/new/${data.data.data.id}`);
+      setNewQuiz(data || data.data.data);
+      navigate(`/dashboard/new/${data.id || data.data.data.id}`);
     },
-    onError: () => {
+    onError: (err) => {
       setError("Could not create new quiz set");
+      console.log("Error creating new quiz set:", err);
     },
   });
 
@@ -95,24 +98,11 @@ export default function NewQuizSetPage() {
         {/* <!-- Left Column --> */}
         <div>
           <Link
-            to={"/"}
+            to={"/dashboard"}
             className="inline-flex items-center text-sm text-gray-600 mb-6 hover:text-buzzr-purple"
           >
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              ></path>
-            </svg>
-            Back to Home
+            <ArrowLeftIcon />
+            Back to Dashboard
           </Link>
 
           <h2 className="text-3xl font-bold mb-6">
